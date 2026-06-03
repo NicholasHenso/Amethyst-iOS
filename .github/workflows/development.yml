@@ -44,9 +44,16 @@ jobs:
 
       - name: Link JDK 8 to macOS System Path
         run: |
-          sudo mkdir -p /Library/Java/JavaVirtualMachines
-          sudo ln -sfn "$JAVA_HOME" /Library/Java/JavaVirtualMachines/zulu-8.jdk
-          echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+          # 1. Create a custom folder where the binaries sit directly in its root
+          sudo mkdir -p /opt/pojav_jdk8
+          
+          # 2. Symlink javac and java directly into that root folder to cheat the Makefile check
+          sudo ln -sfn "$JAVA_HOME/bin/javac" /opt/pojav_jdk8/javac
+          sudo ln -sfn "$JAVA_HOME/bin/java" /opt/pojav_jdk8/java
+          
+          # 3. Expose this flat directory to the runner environment
+          echo "BOOTJDK=/opt/pojav_jdk8" >> $GITHUB_ENV
+          echo "JAVA_HOME=/opt/pojav_jdk8" >> $GITHUB_ENV
 
       - name: Get gl4es latest commit hash
         id: gl4es-sha
