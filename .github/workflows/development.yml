@@ -52,7 +52,7 @@ jobs:
         id: gl4es-sha
         shell: bash
         run: |
-          SHA=$(git ls-remote https://github.com refs/heads/master | awk '{print $1}')
+          SHA=$(git ls-remote https://github.com/ptitseb/gl4es refs/heads/master | awk '{print $1}')
           echo "sha=$SHA" >> $GITHUB_OUTPUT
 
       - name: Build for ${{ matrix.platform_name }}
