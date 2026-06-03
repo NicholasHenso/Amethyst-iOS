@@ -41,6 +41,14 @@ jobs:
         with:
           java-version: '8'
           distribution: 'zulu'
+          cache-environment-properties: true
+
+      - name: Link JDK 8 to macOS System Path
+        run: |
+          sudo mkdir -p /Library/Java/JavaVirtualMachines
+          sudo ln -sfn "$JAVA_HOME" /Library/Java/JavaVirtualMachines/zulu-8.jdk
+          echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
+
 
       - name: Get gl4es latest commit hash
         id: gl4es-sha
