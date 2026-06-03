@@ -186,7 +186,7 @@ $(error You need to install cmake)
 endif
 
 ifneq ($(call METHOD_DEPCHECK,$(BOOTJDK)/javac -version),1)
-$(error You need to install JDK 8)
+    $(error You need to install JDK 8)
 endif
 
 ifeq ($(IOS),0)
