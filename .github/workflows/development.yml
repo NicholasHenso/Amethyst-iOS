@@ -69,15 +69,11 @@ jobs:
         run: |
           export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
           export SLIMMED=1
-          export BOOTJDK="$JAVA_HOME"
+          export BOOTJDK="/opt/pojav_jdk8"
           
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
-          elif [ "${{ matrix.platform_name }}" == "tvos" ]; then
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
-          else
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="/opt/pojav_jdk8"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="/opt/pojav_jdk8"
           fi
 
       - name: Upload regular ipa
