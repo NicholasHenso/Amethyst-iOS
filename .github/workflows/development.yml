@@ -41,7 +41,6 @@ jobs:
         with:
           java-version: '8'
           distribution: 'zulu'
-          cache-environment-properties: true
 
       - name: Link JDK 8 to macOS System Path
         run: |
@@ -49,10 +48,9 @@ jobs:
           sudo ln -sfn "$JAVA_HOME" /Library/Java/JavaVirtualMachines/zulu-8.jdk
           echo "JAVA_HOME=$JAVA_HOME" >> $GITHUB_ENV
 
-
       - name: Get gl4es latest commit hash
         id: gl4es-sha
-        run: echo "::set-output name=sha::$(echo $(git ls-remote https://github.com/PojavLauncherTeam/gl4es-114-extra refs/heads/master | grep -io '^\S*'))"
+        run: echo "::set-output name=sha::$(echo $(git ls-remote https://github.com refs/heads/master | grep -io '^\S*'))"
         shell: bash
 
       - name: Cache gl4es
@@ -78,7 +76,7 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git config user.name "github-actions"
           export PATH=/opt/homebrew/bin:$PATH
-          wget https://github.com/leetal/ios-cmake/raw/master/ios.toolchain.cmake
+          wget https://github.com
           cmake -B build -DCMAKE_TOOLCHAIN_FILE=ios.toolchain.cmake -DDEFAULT_ES=2 \
             -DNOX11=ON -DNOEGL=OFF -DSTATICLIB=OFF -DPLATFORM=OS64 \
             -DCMAKE_C_FLAGS=-Wno-error=implicit-function-declaration
@@ -97,16 +95,20 @@ jobs:
         run: |
           export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
           export SLIMMED=1
+          
+          # Force the Makefile to accept our GitHub Action java runtime path explicitly
+          export BOOTJDK="$JAVA_HOME"
+          
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
             # Build ipa and tipa for iOS
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }}
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
           elif [ "${{ matrix.platform_name }}" == "tvos" ]; then
             # Build tipa only for tvOS
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
           else
             # Build ipa only for everything else
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }}
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
           fi
 
       - name: Upload regular ipa
