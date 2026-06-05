@@ -63,9 +63,9 @@ jobs:
           export SLIMMED=1
           
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
-            # We reference $BOOTJDK which is now bound to the exact java action location
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$BOOTJDK"
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$BOOTJDK"
+            # Passing BOOTJDK explicitly inside the command overrides the Makefile's static location checks
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
           fi
           
       - name: Upload regular ipa
