@@ -57,21 +57,22 @@ jobs:
           SHA=$(git ls-remote https://github.com/ptitseb/gl4es refs/heads/master | awk '{print $1}')
           echo "sha=$SHA" >> $GITHUB_OUTPUT
 
+      - name: Patch Missing Mach Header
+        run: |
+          # Inject the missing mach header right beneath the Foundation import line
+          sed -i '' 's|#import <Foundation/Foundation.h>|#import <Foundation/Foundation.h>\n#import <mach/mach.h>|' Natives/JavaLauncher.m
+
       - name: Build for ${{ matrix.platform_name }}
         run: |
           export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
           export SLIMMED=1
           
-          # Force BOOTJDK to point directly to the directory housing the /bin folder
-          # In the zulu distribution on GitHub's macOS runner, $JAVA_HOME points here natively.
-          # However, the Makefile evaluates $(BOOTJDK)/javac instead of $(BOOTJDK)/bin/javac.
-          # To satisfy "$(BOOTJDK)/javac", we have to pass $JAVA_HOME/bin as the BOOTJDK root!
-          
           TARGET_BOOTJDK="$JAVA_HOME/bin"
+          MAX_JOBS=2
           
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$TARGET_BOOTJDK"
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$TARGET_BOOTJDK"
+            make -j$MAX_JOBS dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$TARGET_BOOTJDK"
+            make -j$MAX_JOBS dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$TARGET_BOOTJDK"
           fi
           
       - name: Upload regular ipa
