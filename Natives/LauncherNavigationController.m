@@ -23,6 +23,9 @@
 
 #define AUTORESIZE_MASKS UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin
 
+// Weak reference to private Apple function (may not be available in all iOS versions)
+extern BOOL _UISolariumEnabled(void) __attribute__((weak));
+
 static void *ProgressObserverContext = &ProgressObserverContext;
 
 @interface LauncherNavigationController () <UIDocumentPickerDelegate, UIPickerViewDataSource, PLPickerViewDelegate, UIPopoverPresentationControllerDelegate> {
