@@ -44,18 +44,14 @@ jobs:
 
       - name: Link JDK 8 to macOS System Path and Install Tools
         run: |
-          # 1. Create a custom folder where the binaries sit directly in its root
-          sudo mkdir -p /opt/pojav_jdk8
+          # Use the true home path of the Zulu JDK setup by the action
+          TRUE_JDK_PATH="/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home"
           
-          # 2. Symlink javac and java directly into that root folder to cheat the Makefile check
-          sudo ln -sfn "$JAVA_HOME/bin/javac" /opt/pojav_jdk8/javac
-          sudo ln -sfn "$JAVA_HOME/bin/java" /opt/pojav_jdk8/java
-          
-          # 3. Expose this flat directory to the runner environment
-          echo "BOOTJDK=/opt/pojav_jdk8" >> $GITHUB_ENV
-          echo "JAVA_HOME=/opt/pojav_jdk8" >> $GITHUB_ENV
+          # Expose the authentic directory directly to the environment
+          echo "BOOTJDK=$TRUE_JDK_PATH" >> $GITHUB_ENV
+          echo "JAVA_HOME=$TRUE_JDK_PATH" >> $GITHUB_ENV
 
-          # 4. Install ldid utility using Homebrew
+          # Install ldid utility using Homebrew
           brew install ldid
 
       - name: Get gl4es latest commit hash
@@ -69,11 +65,10 @@ jobs:
         run: |
           export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
           export SLIMMED=1
-          export BOOTJDK="/opt/pojav_jdk8"
           
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="/opt/pojav_jdk8"
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="/opt/pojav_jdk8"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$BOOTJDK"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$BOOTJDK"
           fi
 
       - name: Upload regular ipa
