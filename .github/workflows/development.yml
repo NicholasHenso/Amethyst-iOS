@@ -62,10 +62,16 @@ jobs:
           export PATH=/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$PATH
           export SLIMMED=1
           
+          # Force BOOTJDK to point directly to the directory housing the /bin folder
+          # In the zulu distribution on GitHub's macOS runner, $JAVA_HOME points here natively.
+          # However, the Makefile evaluates $(BOOTJDK)/javac instead of $(BOOTJDK)/bin/javac.
+          # To satisfy "$(BOOTJDK)/javac", we have to pass $JAVA_HOME/bin as the BOOTJDK root!
+          
+          TARGET_BOOTJDK="$JAVA_HOME/bin"
+          
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
-            # Passing BOOTJDK explicitly inside the command overrides the Makefile's static location checks
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$JAVA_HOME"
-            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$JAVA_HOME"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$TARGET_BOOTJDK"
+            make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$TARGET_BOOTJDK"
           fi
           
       - name: Upload regular ipa
