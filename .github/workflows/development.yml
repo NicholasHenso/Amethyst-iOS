@@ -35,8 +35,8 @@ jobs:
         with:
           submodules: 'recursive'
           set-safe-directory: 'true'
-
       - name: Set up JDK 8
+        id: setup-zulu
         uses: actions/setup-java@v4
         with:
           java-version: '8'
@@ -44,13 +44,9 @@ jobs:
 
       - name: Link JDK 8 to macOS System Path and Install Tools
         run: |
-          # Use the true home path of the Zulu JDK setup by the action
-          TRUE_JDK_PATH="/Library/Java/JavaVirtualMachines/zulu-8.jdk/Contents/Home"
+          # Use the dynamic JAVA_HOME path provided automatically by the action
+          echo "BOOTJDK=$JAVA_HOME" >> $GITHUB_ENV
           
-          # Expose the authentic directory directly to the environment
-          echo "BOOTJDK=$TRUE_JDK_PATH" >> $GITHUB_ENV
-          echo "JAVA_HOME=$TRUE_JDK_PATH" >> $GITHUB_ENV
-
           # Install ldid utility using Homebrew
           brew install ldid
 
@@ -67,10 +63,11 @@ jobs:
           export SLIMMED=1
           
           if [ "${{ matrix.platform_name }}" == "ios" ]; then
+            # We reference $BOOTJDK which is now bound to the exact java action location
             make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} BOOTJDK="$BOOTJDK"
             make -j$(sysctl -n hw.ncpu) dsym package PLATFORM=${{ matrix.platform }} TROLLSTORE_JIT_ENT=1 BOOTJDK="$BOOTJDK"
           fi
-
+          
       - name: Upload regular ipa
         uses: actions/upload-artifact@v4
         with:
