@@ -2,6 +2,9 @@
 #import "UIKit+hook.h"
 #import "utils.h"
 
+// Weak reference to private Apple function (may not be available in all iOS versions)
+extern BOOL _UISolariumEnabled(void) __attribute__((weak));
+
 @interface PickViewController : UIViewController
 @property(nonatomic, assign) UITextField *textField;
 @end
